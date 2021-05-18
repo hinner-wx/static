@@ -6680,9 +6680,10 @@
       document.appendChild(head);
       console.log("created header");
     }
+    let appCssUrl = "https://cdn.jsdelivr.net/gh/hinner-wx/static/serial-web-app/app.css";
     head.innerHTML = `<meta charset="UTF-8" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-    <link rel="stylesheet" href="./out/app.css" />
+    <link rel="stylesheet" href="${appCssUrl}" />
     <title>Serial Web App\u{1F60E}</title>`;
     let body = document.body || document.getElementsByTagName("body")[0];
     if (!body) {
