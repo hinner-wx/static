@@ -106,3 +106,48 @@
 }
 
 /* app.css */
+body {
+  background-color: aliceblue;
+}
+.wrapper {
+  margin: 1%;
+  display: grid;
+  grid-template-columns: 50% 1fr;
+  row-gap: 10px;
+  column-gap: 10px;
+  grid-template-rows: 1fr 50px;
+  grid-template-areas: "terminal cmds-ins" "cmd-in area";
+}
+#terminal {
+  border: 5px rgb(9, 156, 214) solid;
+  padding: 3px;
+  grid-area: terminal;
+}
+#area {
+  grid-area: area;
+  background-color: lightskyblue;
+}
+.cmd-in {
+  grid-area: cmd-in;
+  display: flex;
+}
+#cmdIn {
+  width: 100%;
+  height: 50px;
+  opacity: 0.8;
+  padding-left: 10px;
+  font-size: 150%;
+  border: 3px lightseagreen solid;
+  outline: none;
+}
+.cmds-ins {
+  grid-area: cmds-ins;
+}
+.cmds-ins textarea {
+  min-height: 120px;
+  font-size: 120%;
+  font-family:
+    Arial,
+    Helvetica,
+    sans-serif;
+}

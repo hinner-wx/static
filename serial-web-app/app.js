@@ -6673,13 +6673,51 @@
   function Color(s, c = 30, b = 0, o = 0) {
     return `[${b};${o};${c}m${s}[0m`;
   }
-  function sleep(delay) {
-    return new Promise((resolve) => {
-      setTimeout(resolve, delay);
-    });
-  }
   function initSerial() {
-    const t = document.getElementById("terminal");
+    let head = document.head || document.getElementsByTagName("head")[0];
+    if (!head) {
+      head = document.createElement("head");
+      document.appendChild(head);
+      console.log("created header");
+    }
+    head.innerHTML = `<meta charset="UTF-8" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <link rel="stylesheet" href="./out/app.css" />
+    <title>Serial Web App\u{1F60E}</title>`;
+    let body = document.body || document.getElementsByTagName("body")[0];
+    if (!body) {
+      body = document.createElement("body");
+      document.appendChild(body);
+      console.log("created body");
+    }
+    body.innerHTML = `<div class="wrapper">
+    <div id="terminal"></div>
+
+    <div class="cmd-in">
+        <input type="search" id="cmdIn" />
+        <button>Send</button>
+    </div>
+
+    <div class="cmds-ins">
+        <div>
+            <textarea></textarea>
+            <button>Send</button>
+        </div>
+        <div>
+            <textarea></textarea>
+            <button>Send</button>
+        </div>
+        <div>
+            <textarea></textarea>
+            <button>Send</button>
+        </div>
+
+        <button>+</button>
+    </div>
+
+    <div id="area"></div>
+</div>`;
+    let t = document.getElementById("terminal");
     if (t) {
       term.open(t);
       fitAddon.fit();
@@ -6692,26 +6730,12 @@
       } else {
         connectToPort();
       }
-      const input = document.getElementById("inputCommand");
+      const input = document.getElementById("cmdIn");
       let encoder = new TextEncoder("gbk");
       input.addEventListener("keydown", (event) => {
         if (event.code == "Enter") {
           let c = event.target.value + "\r\n";
           writer.write(encoder.encode(c));
-        }
-      });
-      let commands = document.getElementById("commands");
-      commands.addEventListener("keydown", async (event) => {
-        if (event.ctrlKey && event.key === "Enter") {
-          let s = "" + event.target.value;
-          for (let c of s.split("\n")) {
-            if (c === "") {
-              continue;
-            }
-            writer.write(encoder.encode(c + "\r\n"));
-            console.log(`send command '${c}'`);
-            await sleep(500);
-          }
         }
       });
     });
