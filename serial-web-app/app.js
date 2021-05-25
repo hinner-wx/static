@@ -6599,6 +6599,7 @@
     console.log("The Web Serial API is not supported");
   }
   var port;
+  var porting = true;
   var reader;
   var writer;
   var fitAddon = new import_xterm_addon_fit.FitAddon();
@@ -6615,7 +6616,7 @@
     }
   });
   term.loadAddon(fitAddon);
-  term.write(Red("\u70B9\u51FB\u6253\u5F00\u4E32\u53E3", 1, 3));
+  term.write(Red("\u70B9\u51FB\u6253\u5F00\u4E32\u53E3", 1, 4));
   async function connectToPort() {
     port = await navigator.serial.requestPort();
     if (!port) {
@@ -6627,13 +6628,16 @@
       stopBits: 1,
       parity: "none"
     });
-    while (port && port.readable) {
+    while (port && port.readable && porting) {
       try {
         writer = port.writable.getWriter();
         reader = port.readable.getReader();
         let decoder = new TextDecoder("gbk");
         let tail = new Uint8Array();
         for (; ; ) {
+          if (!porting) {
+            break;
+          }
           let {value, done} = await reader.read();
           if (value) {
             if (tail.length > 0) {
@@ -6667,56 +6671,39 @@
       port = void 0;
     }
   }
+  function ClearLine() {
+    term.write("[2K\r");
+  }
   function Red(s, b = 0, o = 0) {
     return Color(s, 31, b, o);
   }
   function Color(s, c = 30, b = 0, o = 0) {
     return `[${b};${o};${c}m${s}[0m`;
   }
+  function sleep(delay) {
+    return new Promise((resolve) => {
+      setTimeout(resolve, delay);
+    });
+  }
   function initSerial() {
-    let head = document.head || document.getElementsByTagName("head")[0];
-    if (!head) {
-      head = document.createElement("head");
-      document.appendChild(head);
-      console.log("created header");
-    }
-    let appCssUrl = "https://cdn.jsdelivr.net/gh/hinner-wx/static/serial-web-app/app.css";
-    head.innerHTML = `<meta charset="UTF-8" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-    <link rel="stylesheet" href="${appCssUrl}" />
+    document.head.innerHTML = `<meta charset="UTF-8" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" href="./out/app.css" />
     <title>Serial Web App\u{1F60E}</title>`;
-    let body = document.body || document.getElementsByTagName("body")[0];
-    if (!body) {
-      body = document.createElement("body");
-      document.appendChild(body);
-      console.log("created body");
-    }
-    body.innerHTML = `<div class="wrapper">
+    document.body.innerHTML = `<div class="wrapper">
     <div id="terminal"></div>
-
     <div class="cmd-in">
-        <input type="search" id="cmdIn" />
-        <button>Send</button>
+        <span class="cmd-in-span">#</span>
+        <input type="search" id="cmdIn" placeholder="\u8F93\u5165\u547D\u4EE4\uFF08exit\u3001q\u3001quit \u9000\u51FA\uFF09" />
     </div>
 
-    <div class="cmds-ins">
-        <div>
-            <textarea></textarea>
-            <button>Send</button>
+    <div id="area">
+        <div class="cmds-in">
+            <div class="cmds-in-item">
+                <textarea id="cmdsIn" class="cmds-in-textarea"></textarea>
+            </div>
         </div>
-        <div>
-            <textarea></textarea>
-            <button>Send</button>
-        </div>
-        <div>
-            <textarea></textarea>
-            <button>Send</button>
-        </div>
-
-        <button>+</button>
     </div>
-
-    <div id="area"></div>
 </div>`;
     let t = document.getElementById("terminal");
     if (t) {
@@ -6729,14 +6716,33 @@
     t.addEventListener("click", () => {
       if (port) {
       } else {
+        ClearLine();
         connectToPort();
       }
-      const input = document.getElementById("cmdIn");
+      let input = document.getElementById("cmdIn");
       let encoder = new TextEncoder("gbk");
-      input.addEventListener("keydown", (event) => {
-        if (event.code == "Enter") {
-          let c = event.target.value + "\r\n";
-          writer.write(encoder.encode(c));
+      let qArray = ["q", "exit", "quit"];
+      input.addEventListener("keydown", async (event) => {
+        if (event.code === "Enter") {
+          if (qArray.includes(event.target.value)) {
+            porting = false;
+            console.log("quit");
+            return;
+          }
+          writer.write(encoder.encode(event.target.value + "\r\n"));
+          console.log("send", event.target.value);
+          await sleep(300);
+        }
+      });
+      let commands = document.getElementById("cmdsIn");
+      commands.addEventListener("keydown", async (event) => {
+        if (event.ctrlKey && event.key === "Enter") {
+          let s = "" + event.target.value;
+          for (let c of s.split("\n")) {
+            writer.write(encoder.encode(c + "\r\n"));
+            console.log(`send command '${c}'`);
+            await sleep(500);
+          }
         }
       });
     });

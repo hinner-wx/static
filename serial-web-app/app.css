@@ -112,42 +112,69 @@ body {
 .wrapper {
   margin: 1%;
   display: grid;
-  grid-template-columns: 50% 1fr;
-  row-gap: 10px;
+  grid-template-columns: 50% 50%;
   column-gap: 10px;
-  grid-template-rows: 1fr 50px;
-  grid-template-areas: "terminal cmds-ins" "cmd-in area";
+  grid-template-rows: auto 50px;
+  grid-template-areas: "terminal area" "cmd-in area";
 }
 #terminal {
   border: 5px rgb(9, 156, 214) solid;
-  padding: 3px;
+  border-bottom: 0;
+  padding: 8px;
   grid-area: terminal;
-}
-#area {
-  grid-area: area;
-  background-color: lightskyblue;
+  border-radius: 20px 20px 0 0;
 }
 .cmd-in {
   grid-area: cmd-in;
-  display: flex;
+  display: grid;
+  grid-template-areas: "cmd-in-span cmd-in-input";
+  grid-template-columns: 30px 1fr;
 }
 #cmdIn {
+  grid-area: cmd-in-input;
   width: 100%;
-  height: 50px;
-  opacity: 0.8;
-  padding-left: 10px;
-  font-size: 150%;
-  border: 3px lightseagreen solid;
+  height: 100%;
+  border: 5px rgb(9, 156, 214) solid;
+  border-top: 0;
+  border-left: 0;
   outline: none;
+  background-color: #ffffff54;
+  font-size: 120%;
+  border-bottom-right-radius: 18px;
 }
-.cmds-ins {
-  grid-area: cmds-ins;
+.cmd-in-span {
+  grid-area: cmd-in-span;
+  padding-left: 8px;
+  font-size: 120%;
+  font-weight: bold;
+  color: red;
+  border: 5px rgb(9, 156, 214) solid;
+  border-top: 0;
+  border-right: 0;
+  line-height: 50px;
+  border-bottom-left-radius: 18px;
 }
-.cmds-ins textarea {
-  min-height: 120px;
+#area {
+  grid-area: area;
+}
+.cmds-in {
+  display: flex;
+  overflow: auto;
+}
+.cmds-in-item {
+  margin-left: 10px;
+}
+.cmds-in-textarea {
+  min-width: 200px;
+  min-height: 200px;
   font-size: 120%;
   font-family:
     Arial,
     Helvetica,
     sans-serif;
+  border: 5px rgb(9, 156, 214) solid;
+  outline: none;
+  overflow: auto;
+  border-radius: 18px;
+  padding: 8px;
 }
